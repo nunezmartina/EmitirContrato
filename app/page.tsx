@@ -69,37 +69,38 @@ export default function ContractEmissionSystem() {
     {
       id: "1",
       name: "Ana García Rodríguez",
-      dni: "12345678",
+      dni: "38345678",
       email: "ana.garcia@universidad.edu",
       career: "Ingeniería en Sistemas",
-      postId: "POST-001",
+      postId: "00001",
     },
     {
       id: "2",
       name: "Carlos López Martínez",
-      dni: "87654321",
+      dni: "45654321",
       email: "carlos.lopez@universidad.edu",
       career: "Ingeniería Industrial",
-      postId: "POST-002",
+      postId: "00002",
     },
     {
       id: "3",
       name: "María Fernández Silva",
-      dni: "11223344",
+      dni: "46223344",
       email: "maria.fernandez@universidad.edu",
       career: "Ingeniería en Sistemas",
-      postId: "POST-003",
+      postId: "00003",
     },
   ]
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!projectNumber.trim() || !/^\d+$/.test(projectNumber.trim())) {
+    if (!projectNumber.trim() || projectNumber.trim() === "" || !/^\d+$/.test(projectNumber.trim())) {
       setError({
         type: "invalid-data",
         message: "Los datos son incorrectos. Intenta nuevamente.",
       })
+      setProjectNumber("") // Limpiar el campo inmediatamente
       setShouldClearOnFocus(true)
       return
     }
@@ -112,24 +113,28 @@ export default function ContractEmissionSystem() {
         type: "project-not-found",
         message: "No se ha podido encontrar el proyecto ingresado. Intente nuevamente",
       })
+      setProjectNumber("") // Limpiar el campo inmediatamente
       setShouldClearOnFocus(true)
     } else if (projectNumber === "22222") {
       setError({
         type: "wrong-state",
         message: 'El proyecto no esta en estado "En evaluación".',
       })
+      setProjectNumber("") // Limpiar el campo inmediatamente
       setShouldClearOnFocus(true)
     } else if (projectNumber === "33333") {
       setError({
         type: "not-definitive",
         message: 'El proyecto no esta en estado "Definitivo".',
       })
+      setProjectNumber("") // Limpiar el campo inmediatamente
       setShouldClearOnFocus(true)
     } else if (projectNumber === "44444") {
       setError({
         type: "no-confirmed-applications",
         message: 'La postulación no está en estado "Confirmado".',
       })
+      setProjectNumber("") // Limpiar el campo inmediatamente
       setShouldClearOnFocus(true)
     } else {
       // Success case - show confirmation screen
@@ -153,7 +158,11 @@ export default function ContractEmissionSystem() {
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!shouldClearOnFocus) {
+    if (shouldClearOnFocus) {
+      setProjectNumber("")
+      setError(null)
+      setShouldClearOnFocus(false)
+    } else {
       setProjectNumber(e.target.value.slice(0, 5))
       setError(null)
     }
@@ -181,7 +190,14 @@ export default function ContractEmissionSystem() {
     await new Promise((resolve) => setTimeout(resolve, 2000))
 
     const currentDate = new Date()
-    const formattedDate = `${currentDate.getDate()} de ${currentDate.toLocaleDateString("es-ES", { month: "long" })} de ${currentDate.getFullYear()}, ${currentDate.toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" })}`
+    const day = String(currentDate.getDate()).padStart(2, "0")
+    const month = String(currentDate.getMonth() + 1).padStart(2, "0")
+    const year = currentDate.getFullYear()
+    const hours = String(currentDate.getHours()).padStart(2, "0")
+    const minutes = String(currentDate.getMinutes()).padStart(2, "0")
+    const seconds = String(currentDate.getSeconds()).padStart(2, "0")
+
+    const formattedDate = `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`
 
     setEmissionDate(formattedDate)
     setContractsEmitted(confirmedStudents.length)
@@ -263,7 +279,6 @@ export default function ContractEmissionSystem() {
                       onFocus={handleInputFocus}
                       maxLength={5}
                       className="pl-10 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
-                      required
                     />
                   </div>
 
@@ -280,17 +295,15 @@ export default function ContractEmissionSystem() {
                 </Button>
 
                 <Alert className="bg-blue-50 border-blue-200">
-                  <AlertDescription className="text-xs text-blue-800">
-                    <div className="font-bold mb-2 text-xs">Ejemplos para prueba:</div>
-                    <div className="space-y-1 text-xs">
-                      <div>• Ingrese cualquier número válido para continuar con el flujo normal</div>
-                      <div>• Ingrese "11111" para simular que el proyecto no se encuentra</div>
-                      <div>• Ingrese "22222" para simular que el proyecto no esta en estado "En evaluación"</div>
-                      <div>• Ingrese "33333" para simular proceso no esta en estado "Definitivo"</div>
-                      <div>• Ingrese "44444" para simular que la postulación no está en estado "Confirmado"</div>
-                      <div>
-                        • Si ingresa letras o cualquier carácter especial para simular el error de datos no válidos
-                      </div>
+                  <AlertDescription className="text-sm text-blue-800">
+                    <div className="font-bold mb-2 text-sm">Ejemplos para prueba:</div>
+                    <div className="space-y-1 text-sm">
+                      <div>• Ingrese cualquier número válido para continuar.</div>
+                      <div>• Ingrese texto o números incompletos para simular datos no válidos.</div>
+                      <div>• Ingrese "11111" para simular proyecto no encontrado.</div>
+                      <div>• Ingrese "22222" para simular que el proyecto no está en estado "En evaluación".</div>
+                      <div>• Ingrese "33333" para simular que proceso no está en estado "Definitivo".</div>
+                      <div>• Ingrese "44444" para simular que la postulación no está en estado "Confirmado".</div>
                     </div>
                   </AlertDescription>
                 </Alert>
