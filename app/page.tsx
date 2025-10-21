@@ -18,7 +18,7 @@ import {
   FileCheck,
   Mail,
   GraduationCap,
-  BadgeIcon as IdCard,
+  Award as IdCard,
   Download,
   Calendar,
   RotateCcw,
@@ -95,7 +95,8 @@ export default function ContractEmissionSystem() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!projectNumber.trim() || projectNumber.trim() === "" || !/^\d+$/.test(projectNumber.trim())) {
+    const projectPattern = /^PRJ\d{3}$/
+    if (!projectNumber.trim() || projectNumber.trim() === "" || !projectPattern.test(projectNumber.trim())) {
       setError({
         type: "invalid-data",
         message: "Los datos son incorrectos. Intenta nuevamente.",
@@ -107,29 +108,28 @@ export default function ContractEmissionSystem() {
 
     setError(null)
 
-    // Simulate different scenarios based on input
-    if (projectNumber === "11111") {
+    if (projectNumber === "PRJ001") {
       setError({
         type: "project-not-found",
         message: "No se ha podido encontrar el proyecto ingresado. Intente nuevamente",
       })
       setProjectNumber("") // Limpiar el campo inmediatamente
       setShouldClearOnFocus(true)
-    } else if (projectNumber === "22222") {
+    } else if (projectNumber === "PRJ002") {
       setError({
         type: "wrong-state",
         message: 'El proyecto no esta en estado "En evaluación".',
       })
       setProjectNumber("") // Limpiar el campo inmediatamente
       setShouldClearOnFocus(true)
-    } else if (projectNumber === "33333") {
+    } else if (projectNumber === "PRJ003") {
       setError({
         type: "not-definitive",
         message: 'El proyecto no esta en estado "Definitivo".',
       })
       setProjectNumber("") // Limpiar el campo inmediatamente
       setShouldClearOnFocus(true)
-    } else if (projectNumber === "44444") {
+    } else if (projectNumber === "PRJ004") {
       setError({
         type: "no-confirmed-applications",
         message: 'La postulación no está en estado "Confirmado".',
@@ -137,7 +137,6 @@ export default function ContractEmissionSystem() {
       setProjectNumber("") // Limpiar el campo inmediatamente
       setShouldClearOnFocus(true)
     } else {
-      // Success case - show confirmation screen
       setProjectInfo({
         number: projectNumber,
         name: "Sistema de Gestión Empresarial",
@@ -163,7 +162,7 @@ export default function ContractEmissionSystem() {
       setError(null)
       setShouldClearOnFocus(false)
     } else {
-      setProjectNumber(e.target.value.slice(0, 5))
+      setProjectNumber(e.target.value.slice(0, 6))
       setError(null)
     }
   }
@@ -186,7 +185,6 @@ export default function ContractEmissionSystem() {
   const handleEmitContracts = async () => {
     setIsEmitting(true)
 
-    // Simulate loading time
     await new Promise((resolve) => setTimeout(resolve, 2000))
 
     const currentDate = new Date()
@@ -202,7 +200,6 @@ export default function ContractEmissionSystem() {
     setEmissionDate(formattedDate)
     setContractsEmitted(confirmedStudents.length)
 
-    // Generate contracts
     const contracts = confirmedStudents.map((student, index) => ({
       id: student.id,
       number: `CONT-${projectInfo?.number}-${String(index + 1).padStart(3, "0")}`,
@@ -273,11 +270,11 @@ export default function ContractEmissionSystem() {
                     <Input
                       id="projectNumber"
                       type="text"
-                      placeholder="Ej: 00001"
+                      placeholder="Ej: PRJ006"
                       value={projectNumber}
                       onChange={handleInputChange}
                       onFocus={handleInputFocus}
-                      maxLength={5}
+                      maxLength={6}
                       className="pl-10 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                     />
                   </div>
@@ -298,12 +295,12 @@ export default function ContractEmissionSystem() {
                   <AlertDescription className="text-sm text-blue-800">
                     <div className="font-bold mb-2 text-sm">Ejemplos para prueba:</div>
                     <div className="space-y-1 text-sm">
-                      <div>• Ingrese cualquier número válido para continuar.</div>
+                      <div>• Ingrese cualquier número de Proyecto válido para continuar.</div>
                       <div>• Ingrese texto o números incompletos para simular datos no válidos.</div>
-                      <div>• Ingrese "11111" para simular proyecto no encontrado.</div>
-                      <div>• Ingrese "22222" para simular que el proyecto no está en estado "En evaluación".</div>
-                      <div>• Ingrese "33333" para simular que proceso no está en estado "Definitivo".</div>
-                      <div>• Ingrese "44444" para simular que la postulación no está en estado "Confirmado".</div>
+                      <div>• Ingrese "PRJ001" para simular proyecto no encontrado.</div>
+                      <div>• Ingrese "PRJ002" para simular que el proyecto no está en estado "En evaluación".</div>
+                      <div>• Ingrese "PRJ003" para simular que proceso no está en estado "Definitivo".</div>
+                      <div>• Ingrese "PRJ004" para simular que la postulación no está en estado "Confirmado".</div>
                     </div>
                   </AlertDescription>
                 </Alert>
@@ -436,7 +433,6 @@ export default function ContractEmissionSystem() {
 
         {flowState === "success" && (
           <div className="space-y-6">
-            {/* Success Banner */}
             <div className="bg-green-50 border border-green-200 rounded-lg p-4">
               <div className="flex items-center gap-3">
                 <CheckCircle className="w-6 h-6 text-green-600" />
@@ -447,7 +443,6 @@ export default function ContractEmissionSystem() {
               </div>
             </div>
 
-            {/* Emission Details */}
             <Card className="shadow-sm border-0 bg-white">
               <CardHeader className="pb-4">
                 <div className="flex items-center gap-2">
@@ -462,25 +457,31 @@ export default function ContractEmissionSystem() {
                     <p className="font-semibold text-gray-900">{emissionDate}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600 mb-1">Contratos Emitidos</p>
-                    <p className="font-semibold text-gray-900">{contractsEmitted}</p>
+                    <p className="text-sm text-gray-600 mb-1">Fecha de Inicio</p>
+                    <p className="font-semibold text-gray-900">{emissionDate}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600 mb-1">Estado</p>
+                    <p className="text-sm text-gray-600 mb-1">Estado Contrato</p>
                     <div className="flex items-center gap-2">
                       <CheckCircle className="w-4 h-4 text-green-600" />
                       <span className="text-green-700 font-medium">Emitido</span>
                     </div>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600 mb-1">Fecha de Inicio</p>
-                    <p className="font-semibold text-gray-900">{emissionDate}</p>
+                    <p className="text-sm text-gray-600 mb-1">Contratos Emitidos</p>
+                    <p className="font-semibold text-gray-900">{contractsEmitted}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600 mb-1">Estado Proyecto</p>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-600" />
+                      <span className="text-green-700 font-medium">Finalizado</span>
+                    </div>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Generated Contracts */}
             <Card className="shadow-sm border-0 bg-white">
               <CardHeader className="pb-4">
                 <div className="flex items-center gap-2">
@@ -524,17 +525,24 @@ export default function ContractEmissionSystem() {
                   </div>
                 ))}
 
-                {/* Action Buttons - Centered */}
                 <div className="flex justify-center flex-wrap gap-3 mt-6 pt-4 border-t">
-                  <Button variant="outline" onClick={resetFlow} className="flex items-center gap-2">
+                  <Button variant="outline" onClick={resetFlow} className="flex items-center gap-2 bg-transparent">
                     <RotateCcw className="w-4 h-4" />
                     Emitir Nuevos Contratos
                   </Button>
-                  <Button variant="outline" onClick={handleDownloadAll} className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={handleDownloadAll}
+                    className="flex items-center gap-2 bg-transparent"
+                  >
                     <Download className="w-4 h-4" />
                     Descargar Todos los Contratos
                   </Button>
-                  <Button variant="outline" onClick={handleSendAllByEmail} className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={handleSendAllByEmail}
+                    className="flex items-center gap-2 bg-transparent"
+                  >
                     <Mail className="w-4 h-4" />
                     Enviar Todos por Email
                   </Button>
