@@ -125,7 +125,7 @@ export default function ContractEmissionSystem() {
     } else if (projectNumber === "PRJ003") {
       setError({
         type: "not-definitive",
-        message: 'El proyecto no esta en estado "Definitivo".',
+        message: 'El Proceso de Seleccion del Proyecto no está en estado "Definitivo".',
       })
       setProjectNumber("") // Limpiar el campo inmediatamente
       setShouldClearOnFocus(true)
